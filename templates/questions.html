@@ -1,0 +1,103 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Вопросы</title>
+    <link rel="stylesheet" type="text/css" href="{% static 'css/bootstrap.min.css' %}">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+</head>
+<body>
+
+    <style>
+      h1 {
+        position: sticky;
+        top: 0;
+        background-color: white;
+        z-index: 999;
+      }
+      .answer-block {
+    margin-bottom: 5px;
+}
+
+    </style>
+
+
+
+
+
+<div class="container">
+
+  <form method="POST">
+    {% csrf_token %}
+    <div class="row">
+    <h1>Что вы готовы с удовольствием делать на работе каждый день?</h1>
+    <h2>Выберите как миниимум 5 утверждений.</h2>
+      {% for question in questions %}
+        <div class="col-md-4" data-page="1">
+          <h3>{{ question.text }}</h3>
+          <div class="form-check form-switch">
+            <input class="form-check-input" type="checkbox" name="question_{{ question.id }}" id="answer_{{ question.id }}">
+            <label class="form-check-label" for="answer_{{ question.id }}">
+            </label>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+    <button type="submit" class="btn btn-primary" id="submit-btn" disabled>Далее</button>
+  </form>
+</div>
+
+<script src="{% static 'js/bootstrap.min.js' %}"></script>
+<script>
+    // Функция для проверки, достигла ли страница нижней части окна просмотра
+    function isBottomReached() {
+      const scrollY = window.pageYOffset || document.documentElement.scrollTop;
+      const windowHeight = window.innerHeight || document.documentElement.clientHeight;
+      const documentHeight = document.documentElement.offsetHeight;
+
+      return scrollY + windowHeight >= documentHeight;
+    }
+
+    // Функция для отправки AJAX запроса и добавления новых вопросов к списку
+    function loadMoreQuestions() {
+      const nextQuestionPage = parseInt(document.querySelector('.col-md-4:last-child').dataset.page) + 1;
+
+      // Отправка AJAX запроса на сервер для получения следующей страницы вопросов
+      // Используйте ваш роутер или URL-адрес API для этого запроса
+      fetch(`/api/questions?page=${nextQuestionPage}`)
+        .then(response => response.json())
+        .then(data => {
+          // Создание HTML кода для новых вопросов на основе полученных данных
+          const html = data.questions.map(question => `
+            <div class="col-md-4" data-page="${nextQuestionPage}">
+              <h3>${question.text}</h3>
+              <!-- Ваш код -->
+            </div>
+          `).join('');
+
+          // Добавление новых вопросов в конец списка
+          document.querySelector('.row').insertAdjacentHTML('beforeend', html);
+        })
+        .catch(error => console.error(error));
+    }
+
+    // Отслеживание скроллинга и подгрузка новых вопросов при достижении нижней части страницы
+    window.addEventListener('scroll', function() {
+      if (isBottomReached()) {
+        loadMoreQuestions();
+      }
+    });
+
+    // Проверка, выбрано ли хотя бы 5 ответов
+    document.addEventListener("DOMContentLoaded", function() {
+        const submitBtn = document.getElementById("submit-btn");
+        const checkboxes = document.querySelectorAll("input[type=checkbox]");
+
+        checkboxes.forEach(function(checkbox) {
+            checkbox.addEventListener("change", function() {
+                const selectedCount = document.querySelectorAll("input[type=checkbox]:checked").length;
+                submitBtn.disabled = selectedCount < 5;
+            });
+        });
+    });
+</script>

@@ -1,0 +1,177 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Выбранные вопросы</title>
+    <link rel="stylesheet" type="text/css" href="{% static 'css/bootstrap.min.css' %}">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+</head>
+<body>
+
+
+<style>
+
+    .answer-block {
+    margin-bottom: 5px;
+    }
+
+    @media (min-width: 576px) {
+    .col-md-4 {
+    flex: 0 0 50%;
+    max-width: 50%;
+    }
+    }
+
+    @media (min-width: 992px) {
+    .col-md-4 {
+    flex: 0 0 33.33%;
+    max-width: 33.33%;
+    }
+    }
+
+    @media (min-width: 1200px) {
+    .col-md-4 {
+    flex: 0 0 25%;
+    max-width: 25%;
+    }
+    }
+
+</style>
+
+
+
+
+<div class="container">
+    <h1>Выбранные вопросы</h1>
+    <p>Из выбранных вопросов отметьте только 5</p>
+    <form method="POST" >
+        {% csrf_token %}
+        <div class="row">
+          {% for question in session_selected_questions %}
+              <div class="col-md-4" data-page="1">
+                <h3>{{ question.text }}</h3>
+                <div class="form-check form-switch">
+                  <input class="form-check-input" type="checkbox" name="question_{{ question.id }}" id="answer_{{ question.id }}" checked>
+                  <label class="form-check-label" for="answer_{{ question.id }}">
+                  </label>
+                </div>
+              </div>
+          {% endfor %}
+
+        </div>
+        <button type="submit" class="btn btn-primary" id="submit-btn">Завершить</button>
+
+    </form>
+</div>
+<script src="{% static 'js/bootstrap.min.js' %}"></script>
+
+<script>
+    // Функция для проверки, достигла ли страница нижней части окна просмотра
+    function isBottomReached() {
+      const scrollY = window.pageYOffset || document.documentElement.scrollTop;
+      const windowHeight = window.innerHeight || document.documentElement.clientHeight;
+      const documentHeight = document.documentElement.offsetHeight;
+
+      return scrollY + windowHeight >= documentHeight;
+    }
+
+    // Функция для отправки AJAX запроса и добавления новых вопросов к списку
+    function loadMoreQuestions() {
+      const nextQuestionPage = parseInt(document.querySelector('.col-md-4:last-child').dataset.page) + 1;
+
+      // Отправка AJAX запроса на сервер для получения следующей страницы вопросов
+      // Используйте ваш роутер или URL-адрес API для этого запроса
+      fetch(`/api/questions?page=${nextQuestionPage}`)
+        .then(response => response.json())
+        .then(data => {
+          // Создание HTML кода для новых вопросов на основе полученных данных
+          const html = data.questions.map(question => `
+            <div class="col-md-4" data-page="${nextQuestionPage}">
+              <h3>${question.text}</h3>
+              <!-- Ваш код -->
+            </div>
+          `).join('');
+
+          // Добавление новых вопросов в конец списка
+          document.querySelector('.row').insertAdjacentHTML('beforeend', html);
+        })
+        .catch(error => console.error(error));
+    }
+
+    // Отслеживание скроллинга и подгрузка новых вопросов при достижении нижней части страницы
+    window.addEventListener('scroll', function() {
+      if (isBottomReached()) {
+        loadMoreQuestions();
+      }
+    });
+
+    // Получить сохраненные значения из LocalStorage
+function getSavedCheckboxes() {
+  const savedCheckboxes = localStorage.getItem('selectedCheckboxes');
+  return savedCheckboxes ? JSON.parse(savedCheckboxes) : [];
+}
+
+// Сохранить значения отмеченных чекбоксов в LocalStorage
+function saveCheckboxes() {
+  const checkboxes = document.querySelectorAll("input[type=checkbox]");
+  const selectedCheckboxes = [];
+
+  checkboxes.forEach(function(checkbox) {
+    if (checkbox.checked) {
+      selectedCheckboxes.push(checkbox.id);
+    }
+  });
+
+  localStorage.setItem('selectedCheckboxes', JSON.stringify(selectedCheckboxes));
+}
+
+// Восстановить состояние чекбоксов после загрузки страницы
+document.addEventListener("DOMContentLoaded", function() {
+  const checkboxes = document.querySelectorAll("input[type=checkbox]");
+  const savedCheckboxes = getSavedCheckboxes();
+
+  checkboxes.forEach(function(checkbox) {
+    checkbox.checked = savedCheckboxes.includes(checkbox.id);
+  });
+});
+
+// Обновить состояние чекбоксов и сохранить значения при изменении
+document.addEventListener("change", function(event) {
+  const checkbox = event.target;
+  if (checkbox.type === 'checkbox') {
+    saveCheckboxes();
+  }
+});
+
+
+
+
+// Проверка, выбрано ли хотя бы 3 ответа
+      document.addEventListener("DOMContentLoaded", function() {
+      const submitBtn = document.getElementById("submit-btn");
+      const checkboxes = document.querySelectorAll("input[type=checkbox]");
+
+      function updateSubmitButton() {
+        const selectedCount = document.querySelectorAll("input[type=checkbox]:checked").length;
+        submitBtn.disabled = selectedCount < 3 || selectedCount > 5;
+
+        if (selectedCount > 5) {
+          this.checked = false;
+        }
+      }
+
+      checkboxes.forEach(function(checkbox) {
+        checkbox.addEventListener("change", updateSubmitButton);
+      });
+
+      updateSubmitButton(); // Вызов функции при загрузке страницы
+    });
+
+
+
+</script>
+
+
+
+</body>
+</html>

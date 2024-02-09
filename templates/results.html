@@ -1,0 +1,60 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Результаты</title>
+    <link rel="stylesheet" type="text/css" href="{% static 'css/bootstrap.min.css' %}">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+</head>
+<body>
+
+
+<div class="container">
+    <h3>Результаты:</h3>
+    {% if answers.show_results %}
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Дата</th>
+                    <th>Группа</th>
+                    <th>ФИ</th>
+                    <th>Количество компитенций</th>
+                </tr>
+            </thead>
+            <tbody>
+                    <tr>
+                        <td>{{ answers.date }}</td>
+                        <td>{{ answers.user.chosen_group.title }}</td>
+                        <td>{{ answers.user.full_name }}</td>
+                    </tr>
+            </tbody>
+        </table>
+    {% else %}
+        <h1>Спасибо за пройденный опрос. результаты вы получите чуть позже</h1>
+    {% endif %}
+
+    <h3>Групповой результат:</h3>
+    <button id="group_result_button" class="btn btn-primary">Групповой результат</button>
+    <table id="group_result_table" class="table" style="display: none;">
+        <thead>
+            <tr>
+                <th>Группа</th>
+                <th>Сумма баллов</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for group_result in group_results %}
+                <tr>
+                    <td>{{ group_result.group.title }}</td>
+                    <td>{{ group_result.total_score }}</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+
+</div>
+
+    <script src="{% static 'js/bootstrap.min.js' %}"></script>
+</body>
+</html>
