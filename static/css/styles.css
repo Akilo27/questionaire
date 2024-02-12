@@ -45,6 +45,28 @@ h1 {
   border-radius: 10px;
 }
 
+
+
+th {
+    background-color: #f8f9fa;
+    border: 1px solid #dee2e6;
+    text-align: center;
+    padding: 8px;
+}
+
+td {
+    border: 1px solid #dee2e6;
+    text-align: center;
+    padding: 8px;
+}
+
+
+
+
+
+
+
+
 @media (min-width: 576px) {
   .col-md-4 {
     flex: 0 0 50%;

@@ -38,27 +38,9 @@
             </tbody>
         </table>
     {% else %}
-        <h1>Спасибо за пройденный опрос. результаты вы получите чуть позже</h1>
+        <h3>Спасибо за пройденный опрос. результаты вы получите позже.</h3>
     {% endif %}
 
-    <h3>Групповой результат:</h3>
-    <button id="group_result_button" class="btn btn-primary">Групповой результат</button>
-    <table id="group_result_table" class="table" style="display: none;">
-        <thead>
-            <tr>
-                <th>Группа</th>
-                <th>Сумма баллов</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for group_result in group_results %}
-                <tr>
-                    <td>{{ group_result.group.title }}</td>
-                    <td>{{ group_result.total_score }}</td>
-                </tr>
-            {% endfor %}
-        </tbody>
-    </table>
 
 
 </div>
