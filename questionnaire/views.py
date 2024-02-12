@@ -5,6 +5,7 @@ from .models import Question, User, Group, Competence, UserAnswer
 
 def home(request):
     groups = Group.objects.all()
+    message = ''
     if request.method == 'POST':
         full_name = request.POST.get('full_name')
         if len(full_name.split()) == 2:
@@ -20,8 +21,10 @@ def home(request):
             user_answer.save()
 
             return redirect(f'questions/{user.id}/')
+        else:
+            message = 'Введите пожалуйста Отдельно имя и фамилию. Пример: Иванов Иван'
 
-    return render(request, 'home.html', {'groups': groups})
+    return render(request, 'home.html', {'groups': groups, "message": message})
 
 
 def questions(request, user_id):
@@ -49,17 +52,20 @@ def questions(request, user_id):
 
 
 def selected_questions(request, user_id):
-    if request.method == 'POST':
-        return redirect(f'/results/{user_id}/')
 
-    session_selected_questions = request.session.get('session_selected_questions', {})
 
-    ssq = session_selected_questions.keys()
+    session_selected_questi = request.session.get('session_selected_questions', {})
+
+    ssq = session_selected_questi.keys()
     session_selected_questions = []
 
     for id in ssq:
         question = Question.objects.get(id=id)
         session_selected_questions.append(question)
+
+    if request.method == 'POST':
+        request.session['session_selected_questions'] = len(session_selected_questi) + len(session_selected_questions)
+        return redirect(f'/results/{user_id}/')
 
     return render(request, 'selected_questions.html',
                   {'session_selected_questions': session_selected_questions})
@@ -68,13 +74,34 @@ def selected_questions(request, user_id):
 def results(request, user_id):
     user = User.objects.get(id=user_id)
     user_answers = UserAnswer.objects.get(user=user)
-    session_selected_questions = request.session.get('session_selected_questions', {})
-   # group_results = user_answers.values('user__chosen_group').annotate(total_score=Sum('competence'))
+    count_questions = request.session.get('session_selected_questions', {})
+
+    user_answers.competence = count_questions
+    user_answers.save()
 
     return render(request, 'results.html', {
         'groups': Group.objects.all(),
         'answers': user_answers,
-        'ssq':session_selected_questions
        # 'group_results': group_results,
     })
 
+
+def mini_admin(request):
+    # Получаем все ответы пользователей
+    user_answers = UserAnswer.objects.all()
+
+    # Получаем все группы
+    groups = Group.objects.all()
+
+    if request.method == 'POST':
+        if 'group_filter' in request.POST:
+            group_id = request.POST.get('group_filter')
+            if group_id != '-1':
+                user_answers = user_answers.filter(group_id=group_id)
+
+    context = {
+        'user_answers': user_answers,
+        'groups': groups
+    }
+
+    return render(request, 'mini_admin.html', context)
