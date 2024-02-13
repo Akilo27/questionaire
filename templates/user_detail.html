@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Информация о пользователе</title>
+</head>
+<body>
+    <h1>{{ user.full_name }}</h1>
+    <p>Группа: {{ user.chosen_group }}</p>
+    <table class="table">
+            <thead>
+                <tr>
+                  <th>Competence</th>
+                  <th>Count</th>
+                </tr>
+            </thead>
+            <tbody>
+            {% for user_result in user_results %}
+                  <tr>
+                      <td>{{ user_result.competence_name }}</td>
+                      <td>{{ user_result.competence_count }}</td>
+                  </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+</body>
+</html>

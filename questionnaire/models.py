@@ -42,3 +42,10 @@ class UserAnswer(models.Model):
 
     def __str__(self):
         return str(self.user)
+
+
+
+class UserResult(models.Model):
+    user = models.ForeignKey(User,on_delete=models.CASCADE)
+    competence_name = models.CharField(max_length=100)
+    competence_count = models.IntegerField()

@@ -1,6 +1,6 @@
-from django.db.models import Sum
-from django.shortcuts import render, redirect
-from .models import Question, User, Group, Competence, UserAnswer
+from datetime import datetime
+from django.shortcuts import render, redirect, get_object_or_404
+from .models import Question, User, Group, Competence, UserAnswer, UserResult
 
 
 def home(request):
@@ -32,15 +32,14 @@ def questions(request, user_id):
         selected_questions = {}
 
         questions = Question.objects.all()
-        selected_count = 0
         for question in questions:
             answer_text = request.POST.get(f'question_{question.id}', None)
             if answer_text == 'on':
                 user = User.objects.get(id=user_id)
                 competence = Competence.objects.filter(questions=question).first()
                 if competence:
+                    UserResult.objects.create(competence_name=competence, user=user, competence_count=1)
                     selected_questions[question.id] = competence.id
-                    selected_count += 1
 
         request.session['session_selected_questions'] = selected_questions
 
@@ -52,37 +51,44 @@ def questions(request, user_id):
 
 
 def selected_questions(request, user_id):
-
-
-    session_selected_questi = request.session.get('session_selected_questions', {})
-
-    ssq = session_selected_questi.keys()
-    session_selected_questions = []
+    session_selected_questions = request.session.get('session_selected_questions', {})
+    ssq = session_selected_questions.keys()
+    selected_questions = []
+    user = User.objects.get(id=user_id)
 
     for id in ssq:
         question = Question.objects.get(id=id)
-        session_selected_questions.append(question)
+        selected_questions.append(question)
 
     if request.method == 'POST':
-        request.session['session_selected_questions'] = len(session_selected_questi) + len(session_selected_questions)
+        for question in selected_questions:
+            answer = request.POST.get('question_' + str(question.id))
+            if answer is not None:
+                competence = Competence.objects.get(questions=question)
+                user_results = UserResult.objects.filter(competence_name=competence, user=user)
+
+                for user_result in user_results:
+                    user_result.competence_count = 2
+                    user_result.save()
+
         return redirect(f'/results/{user_id}/')
 
     return render(request, 'selected_questions.html',
-                  {'session_selected_questions': session_selected_questions})
+                  {'session_selected_questions': selected_questions})
+
+
 
 
 def results(request, user_id):
     user = User.objects.get(id=user_id)
     user_answers = UserAnswer.objects.get(user=user)
-    count_questions = request.session.get('session_selected_questions', {})
 
-    user_answers.competence = count_questions
-    user_answers.save()
+    user_results = UserResult.objects.filter(user=user).order_by('-competence_count')[:5]
 
     return render(request, 'results.html', {
-        'groups': Group.objects.all(),
+
         'answers': user_answers,
-       # 'group_results': group_results,
+        'user_results': user_results
     })
 
 
@@ -99,9 +105,27 @@ def mini_admin(request):
             if group_id != '-1':
                 user_answers = user_answers.filter(group_id=group_id)
 
+        full_name = request.POST.get('full_name')
+        if full_name:
+            user_answers = user_answers.filter(user__full_name__icontains=full_name)
+
+    date = request.POST.get('date')
+    if date:
+        parsed_date = datetime.strptime(date, '%Y-%m-%d').date()
+        user_answers = user_answers.filter(date__date=parsed_date)
+
+
     context = {
         'user_answers': user_answers,
-        'groups': groups
+        'groups': groups,
+        'date': date
     }
 
     return render(request, 'mini_admin.html', context)
+
+
+def user_detail(request, user_id):
+    user = User.objects.get(id=user_id)
+
+    user_results = UserResult.objects.filter(user=user).order_by('-competence_count')
+    return render(request, 'user_detail.html', {'user': user, 'user_results': user_results})

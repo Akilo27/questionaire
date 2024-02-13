@@ -1,5 +1,4 @@
 {% load static %}
-<!DOCTYPE html>
 <html>
 <head>
     <title>Результаты</title>
@@ -9,42 +8,30 @@
 </head>
 <body>
 
-<style>
-    body {
-      font-family: 'Roboto', sans-serif;
-    }
-</style>
-
-
-
 <div class="container">
     <h3>Результаты:</h3>
-    {% if answers.show_results %}
+    {% if answers.group.show_results == True %}
         <table class="table">
             <thead>
                 <tr>
-                    <th>Дата</th>
-                    <th>Группа</th>
-                    <th>ФИ</th>
-                    <th>Количество компитенций</th>
+                  <th>Competence</th>
+                  <th>Count</th>
                 </tr>
             </thead>
             <tbody>
-                    <tr>
-                        <td>{{ answers.date }}</td>
-                        <td>{{ answers.user.chosen_group.title }}</td>
-                        <td>{{ answers.user.full_name }}</td>
-                    </tr>
+            {% for user_result in user_results %}
+                  <tr>
+                      <td>{{ user_result.competence_name }}</td>
+                      <td>{{ user_result.competence_count }}</td>
+                  </tr>
+            {% endfor %}
             </tbody>
         </table>
     {% else %}
-        <h3>Спасибо за пройденный опрос. результаты вы получите позже.</h3>
+        <h3>Спасибо за пройденный опрос. Результаты вы получите позже.</h3>
     {% endif %}
-
-
-
 </div>
 
-    <script src="{% static 'js/bootstrap.min.js' %}"></script>
+<script src="{% static 'js/bootstrap.min.js' %}"></script>
 </body>
 </html>

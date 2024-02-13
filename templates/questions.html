@@ -10,6 +10,7 @@
 <div class="container">
     <form method="POST">
         {% csrf_token %}
+        <h1>Что вы готовы с удовольствием делать на работе каждый день?</h1>
         <div class="row justify-content-between">
             {% for question in questions %}
                 <div class="col-lg-6" data-page="1">

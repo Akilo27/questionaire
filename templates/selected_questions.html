@@ -15,6 +15,7 @@
 
 <br>
 <div class="container">
+
   <p>Из выбранных вопросов отметьте от 3 до 5 утверждений</p>
   <form method="POST">
     {% csrf_token %}
@@ -22,8 +23,8 @@
       {% for question in session_selected_questions %}
         <div class="col-lg-6" data-page="1">
           <div class="question-block">
-            <p>{{ question.text }}</p>
 
+            <p>{{ question.text }}</p>
               <div class="form-check form-switch">
                 <input class="form-check-input" type="checkbox" name="question_{{ question.id }}" id="answer_{{ question.id }}" checked>
                 <label class="form-check-label" for="answer_{{ question.id }}">
@@ -35,7 +36,11 @@
       {% endfor %}
 
     </div>
-    <button type="submit" class="btn btn-primary" id="submit-btn">Завершить</button>
+
+
+
+<button type="submit" class="btn btn-primary" id="submit-btn">Завершить</button>
+
 
   </form>
 </div>
