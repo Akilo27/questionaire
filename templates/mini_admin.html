@@ -8,6 +8,10 @@
 </head>
 <body>
 <a href="/" class="btn btn-primary">Назад</a>
+<a href="{% url 'group_list'%}" class="btn btn-primary">Группы</a>
+<a href="{% url 'competence_list'%}" class="btn btn-primary">Таланты</a>
+<a href="{% url 'question_list'%}" class="btn btn-primary">Вопросы</a>
+
 
 
 <table class="table table-bordered">
@@ -18,50 +22,43 @@
             <th>ФИ</th>
         </tr>
         <tr>
-            <th>
-              <form method="POST">
+            <form method="POST">
                 {% csrf_token %}
-                <input type="date" name="date" placeholder="Дата" value="{{ date|date:'Y-m-d' }}">
+            <th>
+                <input id="date-input" type="date" name="date" placeholder="Дата" value="{{ date|date:'Y-m-d' }}">
+            </th>
+
+            <th>
+                <select name="group_filter">
+                    <option value="-1">Все группы</option>
+                    {% for group in groups %}
+                        <option value="{{ group.id }}">{{ group.title }}</option>
+                    {% endfor %}
+                </select>
+            </th>
+            <th>
+                <input type="text" name="full_name" placeholder="ФИ">
                 <input type="submit" value="Применить фильтр">
-              </form>
-            </th>
-
-
-
-            <th>
-                <form method="POST">
-                    {% csrf_token %}
-                    <select name="group_filter">
-                        <option value="-1">Все группы</option>
-                        {% for group in groups %}
-                            <option value="{{ group.id }}">{{ group.title }}</option>
-                        {% endfor %}
-                    </select>
-                    <input type="submit" value="Применить фильтр">
-                </form>
-            </th>
-
-
-            <th>
-                <form method="POST">
-                    {% csrf_token %}
-                    <input type="text" name="full_name" placeholder="ФИ">
-                    <input type="submit" value="Применить фильтр">
-                </form>
-            </th>
+            </form>
+        </th>
         </tr>
     </thead>
+
     <tbody>
         {% for user_answer in user_answers %}
             <tr>
                 <td>{{ user_answer.date }}</td>
-                <td>{{ user_answer.group.title }}</td>
+                {% if user_answer.group.title != 'Индивидуальное прохождение' %}
+                    <td><a href="{% url 'group_detail' user_answer.group.id %}">{{ user_answer.group.title }}</a></td>
+                {% else %}
+                    <td>{{ user_answer.group.title }}</td>
+                {% endif %}
                 <td><a href="{% url 'user_detail' user_answer.user.id %}">{{ user_answer.user.full_name }}</a></td>
             </tr>
         {% endfor %}
-
     </tbody>
 </table>
+
 
 
 

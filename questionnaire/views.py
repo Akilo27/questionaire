@@ -1,5 +1,10 @@
 from datetime import datetime
+
+from django.core.exceptions import MultipleObjectsReturned
+from django.db.models import Sum
 from django.shortcuts import render, redirect, get_object_or_404
+
+from .forms import GroupForm, CompetenceForm, QuestionForm
 from .models import Question, User, Group, Competence, UserAnswer, UserResult
 
 
@@ -65,18 +70,26 @@ def selected_questions(request, user_id):
             answer = request.POST.get('question_' + str(question.id))
             if answer is not None:
                 competence = Competence.objects.get(questions=question)
-                user_results = UserResult.objects.filter(competence_name=competence, user=user)
-
-                for user_result in user_results:
-                    user_result.competence_count = 2
-                    user_result.save()
+                try:
+                    # Обновляем или создаем запись в UserResult
+                    competence_sum = UserResult.objects.filter(user=user, competence_name=competence).aggregate(
+                        Sum('competence_count')).get('competence_count__sum')
+                    if competence_sum is None:
+                        UserResult.objects.create(user=user, competence_name=competence, competence_count=2)
+                    else:
+                        UserResult.objects.update_or_create(
+                            user=user,
+                            competence_name=competence,
+                            defaults={'competence_count': competence_sum + 2}
+                        )
+                except MultipleObjectsReturned:
+                    UserResult.objects.filter(user=user, competence_name=competence).delete()
+                    UserResult.objects.create(user=user, competence_name=competence, competence_count=2)
 
         return redirect(f'/results/{user_id}/')
 
     return render(request, 'selected_questions.html',
                   {'session_selected_questions': selected_questions})
-
-
 
 
 def results(request, user_id):
@@ -93,10 +106,10 @@ def results(request, user_id):
 
 
 def mini_admin(request):
-    # Получаем все ответы пользователей
+    date = request.GET.get('date', '')
+    group_id = request.GET.get('group', -1)
+    full_name = request.GET.get('fullName', '')
     user_answers = UserAnswer.objects.all()
-
-    # Получаем все группы
     groups = Group.objects.all()
 
     if request.method == 'POST':
@@ -114,7 +127,6 @@ def mini_admin(request):
         parsed_date = datetime.strptime(date, '%Y-%m-%d').date()
         user_answers = user_answers.filter(date__date=parsed_date)
 
-
     context = {
         'user_answers': user_answers,
         'groups': groups,
@@ -129,3 +141,135 @@ def user_detail(request, user_id):
 
     user_results = UserResult.objects.filter(user=user).order_by('-competence_count')
     return render(request, 'user_detail.html', {'user': user, 'user_results': user_results})
+
+
+def group_detail(request, group_id):
+    result = {}
+    group = Group.objects.get(id=group_id)
+    user_results = UserResult.objects.filter(user__group=group).order_by('-competence_count')
+
+    for user_result in user_results:
+        result[user_result.competence_name] = 0
+
+    for user_result in user_results:
+        result[user_result.competence_name] = result[user_result.competence_name] + user_result.competence_count
+
+    result = sorted(result.items(), key=lambda x: x[1], reverse=True)
+    return render(request, 'group_detail.html', {'group': group, 'user_results': result})
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+def group_list(request):
+    groups = Group.objects.all()
+    return render(request, 'groups/group_list.html', {'groups': groups})
+
+
+def group_create(request):
+    form = GroupForm()
+    if request.method == 'POST':
+        form = GroupForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect('group_list')
+    return render(request, 'groups/group_create.html', {'form': form})
+
+
+def group_update(request, pk):
+    group = Group.objects.get(pk=pk)
+    form = GroupForm(instance=group)
+    if request.method == 'POST':
+        form = GroupForm(request.POST, instance=group)
+        if form.is_valid():
+            form.save()
+            return redirect('group_list')
+    return render(request, 'groups/group_update.html', {'form': form, 'group': group})
+
+
+def group_delete(request, pk):
+    group = Group.objects.get(pk=pk)
+    if request.method == 'POST':
+        group.delete()
+        return redirect('group_list')
+    return render(request, 'groups/group_delete.html', {'group': group})
+
+
+
+
+def competence_list(request):
+    competences = Competence.objects.all()
+    return render(request, 'competences/competence_list.html', {'competences': competences})
+
+def competence_create(request):
+    form = CompetenceForm(request.POST or None)
+    if form.is_valid():
+        form.save()
+        return redirect('competence_list')
+    return render(request, 'competences/competence_form.html', {'form': form})
+
+def competence_update(request, pk):
+    competence = get_object_or_404(Competence, pk=pk)
+    form = CompetenceForm(request.POST or None, instance=competence)
+    if form.is_valid():
+        form.save()
+        return redirect('competence_list')
+    return render(request, 'competences/competence_form.html', {'form': form})
+
+def competence_delete(request, pk):
+    competence = get_object_or_404(Competence, pk=pk)
+    if request.method == 'POST':
+        competence.delete()
+        return redirect('competence_list')
+    return render(request, 'competences/competence_confirm_delete.html', {'competence': competence})
+
+
+
+
+
+def question_list(request):
+    questions = Question.objects.all()
+    return render(request, 'questions/question_list.html', {'questions': questions})
+
+
+def question_create(request):
+    if request.method == 'POST':
+        form = QuestionForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect('question_list')
+    else:
+        form = QuestionForm()
+    return render(request, 'questions/question_create.html', {'form': form})
+
+
+def question_update(request, pk):
+    question = Question.objects.get(pk=pk)
+    if request.method == 'POST':
+        form = QuestionForm(request.POST, instance=question)
+        if form.is_valid():
+            form.save()
+            return redirect('question_list')
+    else:
+        form = QuestionForm(instance=question)
+    return render(request, 'questions/question_update.html', {'form': form})
+
+
+def question_delete(request, pk):
+    question = Question.objects.get(pk=pk)
+    if request.method == 'POST':
+        question.delete()
+        return redirect('question_list')
+    return render(request, 'questions/question_delete.html', {'question': question})
