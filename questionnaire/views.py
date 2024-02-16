@@ -169,10 +169,6 @@ def group_detail(request, group_id):
 
 
 
-
-
-
-
 def group_list(request):
     groups = Group.objects.all()
     return render(request, 'groups/group_list.html', {'groups': groups})
@@ -207,11 +203,10 @@ def group_delete(request, pk):
     return render(request, 'groups/group_delete.html', {'group': group})
 
 
-
-
 def competence_list(request):
     competences = Competence.objects.all()
     return render(request, 'competences/competence_list.html', {'competences': competences})
+
 
 def competence_create(request):
     form = CompetenceForm(request.POST or None)
@@ -219,6 +214,7 @@ def competence_create(request):
         form.save()
         return redirect('competence_list')
     return render(request, 'competences/competence_form.html', {'form': form})
+
 
 def competence_update(request, pk):
     competence = get_object_or_404(Competence, pk=pk)
@@ -228,15 +224,13 @@ def competence_update(request, pk):
         return redirect('competence_list')
     return render(request, 'competences/competence_form.html', {'form': form})
 
+
 def competence_delete(request, pk):
     competence = get_object_or_404(Competence, pk=pk)
     if request.method == 'POST':
         competence.delete()
         return redirect('competence_list')
     return render(request, 'competences/competence_confirm_delete.html', {'competence': competence})
-
-
-
 
 
 def question_list(request):
