@@ -9,11 +9,11 @@
 </head>
 <body>
 <a href="{% url 'group_list'%}" class="btn btn-primary">Назад</a>
-    <h1>Delete Group</h1>
-    <p>Are you sure you want to delete "{{ group.title }}" group?</p>
+    <h1>Удалить группу</h1>
+    <p>Вы уверены, что хотите удалить группу "{{ group.title }}"?</p>
     <form method="post">
         {% csrf_token %}
-        <button type="submit">Delete</button>
+        <button type="submit">Удалить</button>
     </form>
 </body>
 </html>

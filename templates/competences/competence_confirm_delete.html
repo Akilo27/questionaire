@@ -9,10 +9,11 @@
 </head>
 <body>
 <a href="{% url 'competence_list'%}" class="btn btn-primary">Назад</a>
-<p>Are you sure you want to delete {{ competence.name }}?</p>
-<form method="POST">
-  {% csrf_token %}
-  <button type="submit">Confirm</button>
-</form>
+    <p>Вы уверены, что хотите удалить {{ competence.name }}?</p>
+    <form method="POST">
+      {% csrf_token %}
+      <button type="submit">Подтвердить</button>
+    </form>
 </body>
+
 </html>
