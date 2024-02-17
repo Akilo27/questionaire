@@ -5,7 +5,7 @@ from .models import Group, Competence, Question
 class GroupForm(forms.ModelForm):
     class Meta:
         model = Group
-        fields = ['title', 'users', 'show_results']
+        fields = ['title', 'users', 'show_results','num_competences_displayed']
 
 
 class CompetenceForm(forms.ModelForm):

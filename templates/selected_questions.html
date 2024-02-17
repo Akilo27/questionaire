@@ -14,9 +14,9 @@
 
 
 <br>
-<div class="container">
-
-  <p>Из выбранных вопросов отметьте от 3 до 5 утверждений</p>
+<div class="container text-center">
+  <h1>Что вы готовы с удовольствием делать на работе каждый день?</h1>
+  <p>Из выбранных вопросов отметьте до 5 утверждений</p>
   <form method="POST">
     {% csrf_token %}
     <div class="row">
@@ -34,12 +34,13 @@
           </div>
         </div>
       {% endfor %}
-
+    <br>
+    <button type="submit" class="btn btn-primary" id="submit-btn">Завершить</button>
     </div>
 
 
 
-<button type="submit" class="btn btn-primary" id="submit-btn">Завершить</button>
+
 
 
   </form>
@@ -135,7 +136,7 @@ document.addEventListener("change", function(event) {
 
       function updateSubmitButton() {
         const selectedCount = document.querySelectorAll("input[type=checkbox]:checked").length;
-        submitBtn.disabled = selectedCount < 3 || selectedCount > 5;
+        submitBtn.disabled = selectedCount > 5;
 
         if (selectedCount > 5) {
           this.checked = false;

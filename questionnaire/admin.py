@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import User, Group, Competence, Question, UserAnswer,UserResult
+from .models import User, Group, Competence, Question, UserAnswer,UserResult,Block
 
 
 class UserAdmin(admin.ModelAdmin):
@@ -29,4 +29,5 @@ admin.site.register(Group, GroupAdmin)
 admin.site.register(Competence, CompetenceAdmin)
 admin.site.register(Question, QuestionAdmin)
 admin.site.register(UserAnswer, UserAnswerAdmin)
+admin.site.register(Block)
 admin.site.register(UserResult)

@@ -5,12 +5,14 @@ from django.db.models import Sum
 from django.shortcuts import render, redirect, get_object_or_404
 
 from .forms import GroupForm, CompetenceForm, QuestionForm
-from .models import Question, User, Group, Competence, UserAnswer, UserResult
+from .models import Question, User, Group, Competence, UserAnswer, UserResult, Block
 
 
 def home(request):
+    block = Block.objects.get(name='Начальный экран')
     groups = Group.objects.all()
     message = ''
+
     if request.method == 'POST':
         full_name = request.POST.get('full_name')
         if len(full_name.split()) == 2:
@@ -29,7 +31,7 @@ def home(request):
         else:
             message = 'Введите пожалуйста Отдельно имя и фамилию. Пример: Иванов Иван'
 
-    return render(request, 'home.html', {'groups': groups, "message": message})
+    return render(request, 'home.html', {'groups': groups, "message": message, 'block': block})
 
 
 def questions(request, user_id):
@@ -96,7 +98,9 @@ def results(request, user_id):
     user = User.objects.get(id=user_id)
     user_answers = UserAnswer.objects.get(user=user)
 
-    user_results = UserResult.objects.filter(user=user).order_by('-competence_count')[:5]
+    group_count = user.chosen_group.num_competences_displayed
+
+    user_results = UserResult.objects.filter(user=user).order_by('-competence_count')[:group_count]
 
     return render(request, 'results.html', {
 
@@ -156,17 +160,6 @@ def group_detail(request, group_id):
 
     result = sorted(result.items(), key=lambda x: x[1], reverse=True)
     return render(request, 'group_detail.html', {'group': group, 'user_results': result})
-
-
-
-
-
-
-
-
-
-
-
 
 
 def group_list(request):

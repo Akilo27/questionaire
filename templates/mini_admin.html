@@ -7,10 +7,24 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
 </head>
 <body>
-<a href="/" class="btn btn-primary">Назад</a>
-<a href="{% url 'group_list'%}" class="btn btn-primary">Группы</a>
-<a href="{% url 'competence_list'%}" class="btn btn-primary">Таланты</a>
-<a href="{% url 'question_list'%}" class="btn btn-primary">Вопросы</a>
+
+
+
+
+<div class="container">
+    <header class="d-flex flex-wrap justify-content-center py-3 mb-4 border-bottom">
+      <a href="/" class="d-flex align-items-center mb-3 mb-md-0 me-md-auto link-body-emphasis text-decoration-none">
+        <svg class="bi me-2" width="40" height="32"><use xlink:href="#bootstrap"></use></svg>
+        <span class="fs-4">Вернуться</span>
+      </a>
+
+      <ul class="nav nav-pills">
+        <li class="nav-item"><a href="{% url 'group_list'%}" class="nav-link">Группы</a></li>
+        <li class="nav-item"><a href="{% url 'competence_list'%}" class="nav-link">Таланты</a></li>
+        <li class="nav-item"><a href="{% url 'question_list'%}" class="nav-link">Вопросы</a></li>
+      </ul>
+    </header>
+  </div>
 
 
 <div class="container">

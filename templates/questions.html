@@ -7,27 +7,28 @@
 </head>
 <body>
 
-<div class="container">
+<div class="container text-center">
     <form method="POST">
         {% csrf_token %}
         <h1>Что вы готовы с удовольствием делать на работе каждый день?</h1>
         <div class="row justify-content-between">
             {% for question in questions %}
-                <div class="col-lg-6" data-page="1">
+                <div class="col-md-6">
                     <div class="question-block">
                         <p>{{ question.text }}</p>
                         <div class="form-check form-switch">
-                            <input class="form-check-input" type="checkbox" name="question_{{ question.id }}" id="answer_{{ question.id }}">
-                            <label class="form-check-label" for="answer_{{ question.id }}">
-                            </label>
+                            <input class="form-check-input" type="checkbox" name="question_{{ question.id }}" id="answer_{{ question.id }}" >
+                            <label class="form-check-label" for="answer_{{ question.id }}"></label>
                         </div>
                     </div>
                 </div>
             {% endfor %}
+            <br>
+            <button type="submit" class="btn btn-primary btn-lg" id="submit-btn" disabled>Далее</button>
         </div>
-        <button type="submit" class="btn btn-primary btn-lg" id="submit-btn" disabled>Далее</button>
     </form>
 </div>
+
 
 
 <script src="{% static 'js/bootstrap.min.js' %}"></script>
@@ -84,3 +85,5 @@
         });
     });
 </script>
+</body>
+</html>

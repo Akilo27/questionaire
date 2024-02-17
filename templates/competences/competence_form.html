@@ -10,7 +10,7 @@
 <body>
 <div class="container">
 <a href="{% url 'competence_list'%}" class="btn btn-primary">Назад</a>
-    <form method="POST">
+  <form method="POST">
   {% csrf_token %}
   {{ form.as_p }}
   <button type="submit">Save</button>
