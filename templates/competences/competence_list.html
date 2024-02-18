@@ -10,7 +10,8 @@
 </head>
 <body>
 <a href="{% url 'mini_admin'%}" class="btn btn-primary">Назад</a>
-<div class="container">
+<br><br>
+<div class="container text-center">
   <table class="table table-bordered">
     <thead>
       <tr>
@@ -36,7 +37,10 @@
       {% endfor %}
     </tbody>
   </table>
-  <a href="{% url 'competence_create' %}">Создать новый талант</a>
+
+
 </div>
+
+<a href="{% url 'competence_create' %}" class="btn btn-primary">Создать новый талант</a>
 </body>
 </html>
