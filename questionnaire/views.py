@@ -5,7 +5,7 @@ from django.core.exceptions import MultipleObjectsReturned
 from django.db.models import Sum
 from django.shortcuts import render, redirect, get_object_or_404
 
-from .forms import GroupForm, CompetenceForm, QuestionForm
+from .forms import GroupForm, CompetenceForm, QuestionForm, BlockForm
 from .models import Question, User, Group, Competence, UserAnswer, UserResult, Block
 from django.contrib.auth import authenticate, login as auth_login, logout
 
@@ -110,6 +110,7 @@ def results(request, user_id):
         'user_results': user_results
     })
 
+
 @login_required
 def mini_admin(request):
     date = request.GET.get('date', '')
@@ -141,12 +142,14 @@ def mini_admin(request):
 
     return render(request, 'mini_admin.html', context)
 
+
 @login_required
 def user_detail(request, user_id):
     user = User.objects.get(id=user_id)
 
     user_results = UserResult.objects.filter(user=user).order_by('-competence_count')
     return render(request, 'user_detail.html', {'user': user, 'user_results': user_results})
+
 
 @login_required
 def group_detail(request, group_id):
@@ -163,10 +166,12 @@ def group_detail(request, group_id):
     result = sorted(result.items(), key=lambda x: x[1], reverse=True)
     return render(request, 'group_detail.html', {'group': group, 'user_results': result})
 
+
 @login_required
 def group_list(request):
     groups = Group.objects.all()
     return render(request, 'groups/group_list.html', {'groups': groups})
+
 
 @login_required
 def group_create(request):
@@ -177,6 +182,7 @@ def group_create(request):
             form.save()
             return redirect('group_list')
     return render(request, 'groups/group_create.html', {'form': form})
+
 
 @login_required
 def group_update(request, pk):
@@ -189,6 +195,7 @@ def group_update(request, pk):
             return redirect('group_list')
     return render(request, 'groups/group_update.html', {'form': form, 'group': group})
 
+
 @login_required
 def group_delete(request, pk):
     group = Group.objects.get(pk=pk)
@@ -197,10 +204,12 @@ def group_delete(request, pk):
         return redirect('group_list')
     return render(request, 'groups/group_delete.html', {'group': group})
 
+
 @login_required
 def competence_list(request):
     competences = Competence.objects.all()
     return render(request, 'competences/competence_list.html', {'competences': competences})
+
 
 @login_required
 def competence_create(request):
@@ -209,6 +218,7 @@ def competence_create(request):
         form.save()
         return redirect('competence_list')
     return render(request, 'competences/competence_form.html', {'form': form})
+
 
 @login_required
 def competence_update(request, pk):
@@ -219,6 +229,7 @@ def competence_update(request, pk):
         return redirect('competence_list')
     return render(request, 'competences/competence_form.html', {'form': form})
 
+
 @login_required
 def competence_delete(request, pk):
     competence = get_object_or_404(Competence, pk=pk)
@@ -227,10 +238,12 @@ def competence_delete(request, pk):
         return redirect('competence_list')
     return render(request, 'competences/competence_confirm_delete.html', {'competence': competence})
 
+
 @login_required
 def question_list(request):
     questions = Question.objects.all()
     return render(request, 'questions/question_list.html', {'questions': questions})
+
 
 @login_required
 def question_create(request):
@@ -243,6 +256,7 @@ def question_create(request):
         form = QuestionForm()
     return render(request, 'questions/question_create.html', {'form': form})
 
+
 @login_required
 def question_update(request, pk):
     question = Question.objects.get(pk=pk)
@@ -254,6 +268,7 @@ def question_update(request, pk):
     else:
         form = QuestionForm(instance=question)
     return render(request, 'questions/question_update.html', {'form': form})
+
 
 @login_required
 def question_delete(request, pk):
@@ -281,3 +296,15 @@ def login(request):
             message = "Нет такого пользователя, просмотрите правильность написания имени и пароля"
 
     return render(request, 'login.html', {'message': message})
+
+
+def Block_update(request, pk):
+    block = Block.objects.get(pk=pk)
+    if request.method == 'POST':
+        form = BlockForm(request.POST, instance=block)
+        if form.is_valid():
+            form.save()
+            return redirect('mini_admin')
+    else:
+        form = QuestionForm(instance=block)
+    return render(request, 'questions/question_update.html', {'form': form})

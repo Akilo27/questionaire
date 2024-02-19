@@ -20,7 +20,7 @@ urlpatterns = [
     path('local_admin/groups/update/<int:pk>/', views.group_update, name='group_update'),
     path('local_admin/groups/delete/<int:pk>/', views.group_delete, name='group_delete'),
 
-
+    path('local_admin/question_update/<int:pk>/', views.Block_update, name='block_update'),
 
     path('local_admin/questions/', views.question_list, name='question_list'),
     path('local_admin/question/create/', views.question_create, name='question_create'),

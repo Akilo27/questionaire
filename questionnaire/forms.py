@@ -1,5 +1,18 @@
 from django import forms
-from .models import Group, Competence, Question
+from .models import Group, Competence, Question, Block
+
+
+class BlockForm(forms.ModelForm):
+    class Meta:
+        model = Block
+        fields = ['name', 'content']
+        labels = {
+            'name': 'Название',
+            'content': 'Контент'
+        }
+        widgets = {
+            'name': forms.TextInput(attrs={'class': 'form-control'})
+        }
 
 
 class GroupForm(forms.ModelForm):
