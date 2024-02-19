@@ -14,7 +14,7 @@
 
 
 <br>
-<div class="container text-center">
+<div class="container ">
   <h1>Что вы готовы с удовольствием делать на работе каждый день?</h1>
   <p>Из выбранных вопросов отметьте до 5 утверждений</p>
   <form method="POST">
@@ -22,7 +22,7 @@
     <div class="row">
       {% for question in session_selected_questions %}
         <div class="col-lg-6" data-page="1">
-          <div class="question-block">
+          <div class="question-block" style="height: 70px;">
 
             <p>{{ question.text }}</p>
               <div class="form-check form-switch">

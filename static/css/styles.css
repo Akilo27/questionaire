@@ -8,6 +8,7 @@ body {
 
 
 .question-block {
+    height: 300px;
     border: 1px solid #ccc;
     padding: 10px;
     margin-bottom: 0px;
